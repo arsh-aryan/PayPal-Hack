@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guardrail</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-grid.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-theme-quartz.css" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="logo">◆</span>
+      <div>
+        <h1>Guardrail</h1>
+        <p>A firewall between AI agents and your PayPal wallet</p>
+      </div>
+    </div>
+    <div class="pills">
+      <span id="pill-ai" class="pill">AI: …</span>
+      <span id="pill-pp" class="pill">PayPal: …</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel" id="mandate-panel">
+      <h2><span class="step">1</span> Tell your agent what it may do</h2>
+      <div class="presets">
+        <button data-preset="Buy me a mechanical keyboard for my desk. Max $120 total, only from stores that accept returns. Ask me before anything over $80.">⌨️ Keyboard</button>
+        <button data-preset="Get me noise-cancelling headphones. Budget $150, returns required. Ask me before paying more than $80.">🎧 Headphones</button>
+        <button data-preset="Buy a dimmable desk lamp. Spend at most $100. Only stores with returns.">💡 Desk lamp</button>
+      </div>
+      <textarea id="mandate" rows="4" placeholder="e.g. Buy me a mechanical keyboard, max $120, only stores with returns, ask me above $80."></textarea>
+      <button id="compile" class="primary">Compile spending policy</button>
+
+      <div id="policy" class="policy hidden">
+        <h3>Enforced policy</h3>
+        <p id="policy-summary"></p>
+        <dl id="policy-grid"></dl>
+        <button id="launch" class="primary">Launch agent</button>
+      </div>
+    </section>
+
+    <section class="panel" id="feed-panel">
+      <h2><span class="step">2</span> Live agent activity</h2>
+      <div id="spent" class="spent hidden"></div>
+      <ol id="feed"><li class="empty">The agent's actions and Guardrail's decisions appear here.</li></ol>
+    </section>
+  </main>
+
+  <section class="panel" id="audit-panel">
+    <div class="audit-head">
+      <h2><span class="step">3</span> Audit trail</h2>
+      <button id="refresh-audit">Refresh</button>
+    </div>
+    <div id="audit-grid" class="ag-theme-quartz"></div>
+  </section>
+
+  <div id="approval" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="approval-title">
+    <div class="modal-card">
+      <h3 id="approval-title">Approve this payment?</h3>
+      <p id="approval-body"></p>
+      <p id="approval-reason" class="muted"></p>
+      <div class="modal-actions">
+        <button id="deny" class="danger">Deny</button>
+        <button id="approve" class="primary">Approve &amp; pay</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/dist/ag-grid-community.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
