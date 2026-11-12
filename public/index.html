@@ -8,12 +8,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <script>try { var t = localStorage.getItem("leash-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-grid.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-theme-quartz.css" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
+  <div id="topbar" class="topbar" role="progressbar" aria-label="Loading" aria-hidden="true"><span></span></div>
+
+  <div id="splash" class="splash" aria-hidden="true">
+    <svg class="splash-mark" viewBox="0 0 48 48">
+      <path class="sp-left" d="M24 5 9 11v10c0 10 6 17.6 15 21" />
+      <path class="sp-right" d="M24 5l15 6v10c0 10-6 17.6-15 21" />
+      <path class="sp-tick" d="M19 23l4 4 7-8" />
+    </svg>
+    <span class="splash-name">LEASH</span>
+  </div>
   <div class="banner"><span class="banner-tag">Demo</span> No sign-up needed: you act as the owner of Corner Café. Payments use PayPal sandbox accounts, not real money.</div>
 
   <header class="masthead">
@@ -39,13 +49,13 @@
     </div>
   </header>
 
-  <section class="intro" aria-label="About Leash">
+  <section class="intro reveal" aria-label="About Leash">
     <p class="tagline">Spending controls for AI agents that pay with PayPal.</p>
     <p class="intro-sub">Set the rules, let the agent shop, and Leash checks every payment before money moves.</p>
   </section>
 
 
-  <ol class="steps" aria-label="Progress">
+  <ol class="steps reveal" aria-label="Progress">
     <li id="st-1" class="active"><span>1</span> Write rules</li>
     <li id="st-2"><span>2</span> Check policy</li>
     <li id="st-3"><span>3</span> Watch agent</li>
@@ -54,7 +64,7 @@
 
   <main class="desk">
     <!-- ===================== LEFT: CONTROLS ===================== -->
-    <aside class="controls">
+    <aside class="controls reveal">
       <section class="sect" aria-labelledby="mandate-title">
         <h2 id="mandate-title" class="h">1. Tell the agent what to buy</h2>
         <p class="lede">Pick an example order or write your own. Include a budget, and when the agent should ask you first.</p>
@@ -126,7 +136,7 @@
 
     <!-- ===================== RIGHT: RUN ===================== -->
     <div class="run">
-      <section class="sect gate-block" aria-labelledby="pipe-title">
+      <section class="sect gate-block reveal" aria-labelledby="pipe-title">
         <div class="block-head">
           <h2 id="pipe-title" class="h">3. Payment check</h2>
           <span id="pipe-state" class="state mono">Idle</span>
@@ -176,7 +186,7 @@
       </section>
 
       <div class="split">
-        <section class="sect feed-block" aria-labelledby="act-title">
+        <section class="sect feed-block reveal" aria-labelledby="act-title">
           <div class="block-head">
             <h2 id="act-title" class="h">What the agent is doing</h2>
             <span class="live mono" id="live" hidden><i></i>Running</span>
@@ -186,7 +196,7 @@
           </ol>
         </section>
 
-        <section class="sect book" aria-labelledby="book-title">
+        <section class="sect book reveal" aria-labelledby="book-title">
           <h2 id="book-title" class="h">Spending</h2>
           <dl class="book-lines mono">
             <div><dt>Budget</dt><dd id="spent-budget">—</dd></div>
@@ -211,7 +221,7 @@
   </main>
 
   <!-- ===================== AUDIT ===================== -->
-  <section class="sect ledger" aria-labelledby="ledger-title">
+  <section class="sect ledger reveal" aria-labelledby="ledger-title">
     <div class="block-head">
       <h2 id="ledger-title" class="h">4. Payment log</h2>
       <button id="refresh-audit" class="btn plain small">Refresh</button>

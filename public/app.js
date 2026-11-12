@@ -14,6 +14,32 @@ const money = (n) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigi
 const clock = (iso) => new Date(iso || Date.now()).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 const mdLite = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").split(/\n{2,}/).map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
 
+// ---------------- top progress bar (counts concurrent tasks) ----------------
+const Progress = (() => {
+  let jobs = 0, timer;
+  const bar = () => document.getElementById("topbar");
+  return {
+    start() {
+      jobs++;
+      const b = bar(); if (!b) return;
+      clearTimeout(timer);
+      b.classList.remove("finish");
+      b.firstElementChild.style.width = "";
+      void b.offsetWidth;
+      b.classList.add("active");
+    },
+    done() {
+      jobs = Math.max(0, jobs - 1);
+      if (jobs) return;
+      const b = bar(); if (!b) return;
+      b.classList.remove("active");
+      b.classList.add("finish");
+      timer = setTimeout(() => b.classList.remove("finish"), 450);
+    },
+  };
+})();
+Progress.start(); // page load
+
 let policy = null;
 let source = null;
 let pendingApproval = null;
@@ -71,6 +97,7 @@ $("compile").addEventListener("click", async () => {
   const mandate = $("mandate").value.trim();
   if (!mandate) return $("mandate").focus();
   busy($("compile"), true, "Compiling policy…");
+  Progress.start();
   try {
     const res = await fetch("/api/mandate", {
       method: "POST",
@@ -85,6 +112,7 @@ $("compile").addEventListener("click", async () => {
     alert(`Could not compile the policy: ${e.message}`);
   } finally {
     busy($("compile"), false, "Compile spending policy");
+    Progress.done();
   }
 });
 
@@ -115,6 +143,7 @@ $("edit").addEventListener("click", () => {
 $("launch").addEventListener("click", async () => {
   if (!policy) return;
   busy($("launch"), true, "Agent running…");
+  Progress.start();
   $("edit").disabled = true;
   resetRun();
   setStep(3);
@@ -127,6 +156,7 @@ $("launch").addEventListener("click", async () => {
   if (error) {
     busy($("launch"), false, "Launch agent");
     $("edit").disabled = false;
+    Progress.done();
     return alert(error);
   }
   $("live").hidden = false;
@@ -343,6 +373,7 @@ function handleEvent(e) {
       $("live").hidden = true;
       $("agent-sub").textContent = "done";
       busy($("launch"), false, "Run again");
+      Progress.done();
       $("edit").disabled = false;
       setStep(4);
       if (stats.attempts === 0) {
@@ -429,8 +460,13 @@ const grid = agGrid.createGrid($("audit-grid"), {
   overlayNoRowsTemplate: "No payment attempts yet.",
 });
 async function loadAudit() {
+  Progress.start();
+  try {
   const rows = await fetch("/api/audit", { headers: VH }).then((r) => r.json());
   grid.setGridOption("rowData", rows);
+  } finally {
+    Progress.done();
+  }
 }
 $("refresh-audit").addEventListener("click", loadAudit);
 loadAudit();
@@ -451,3 +487,35 @@ $("theme").addEventListener("click", () => {
   window.LeashAnim?.mountGate($("lottie-gate")); // redraw the gate in the new colours
 });
 syncThemeButton();
+
+// ---------------- first-visit splash + scroll reveal ----------------
+(() => {
+  const splash = document.getElementById("splash");
+  const started = performance.now();
+  const reveal = () => {
+    const items = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window)) { items.forEach((el) => el.classList.add("in")); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
+    items.forEach((el, i) => { el.style.transitionDelay = `${Math.min(i, 4) * 60}ms`; io.observe(el); });
+  };
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    Progress.done();
+    let seen = false;
+    try { seen = sessionStorage.getItem("leash-splash") === "1"; sessionStorage.setItem("leash-splash", "1"); } catch {}
+    const wait = seen ? 0 : Math.max(0, 1100 - (performance.now() - started)); // show the logo draw once per visit
+    setTimeout(() => {
+      splash?.classList.add("hide");
+      reveal();
+      setTimeout(() => splash?.remove(), 500);
+    }, wait);
+  };
+  window.addEventListener("load", finish);
+  setTimeout(finish, 2500); // never hold the page behind the splash for long
+})();

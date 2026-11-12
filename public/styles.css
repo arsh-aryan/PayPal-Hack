@@ -84,7 +84,7 @@ a { color: var(--accent); }
   :root:not([data-theme="light"]) .mark-right { stroke: #7fd0ff; }
   :root:not([data-theme="light"]) .mark-tick { stroke: #ffffff; }
 }
-.name { font-weight: 800; font-size: 22px; letter-spacing: 0.16em; color: var(--navy); }
+.name { font: italic 400 30px/1 "Instrument Serif", Georgia, serif; letter-spacing: 0.06em; color: var(--navy); padding-right: 2px; }
 .pill-beta { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 9px; border-radius: 99px; color: var(--blue); background: var(--blue-soft); }
 .mh-right { display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap; }
 .chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); color: var(--ink-2); white-space: nowrap; }
@@ -126,7 +126,7 @@ a { color: var(--accent); }
 .split { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start; }
 @media (max-width: 1100px) { .split { grid-template-columns: 1fr; } }
 @media (max-width: 880px) { .desk { grid-template-columns: 1fr; } }
-.controls, .gate-block, .feed-block, .book, .ledger { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); min-width: 0; animation: rise 0.4s var(--ease) both; }
+.controls, .gate-block, .feed-block, .book, .ledger { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); min-width: 0; }
 .controls { padding: 24px; position: sticky; top: 16px; }
 @media (max-width: 880px) { .controls { position: static; } }
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
@@ -335,4 +335,76 @@ textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* =====================================================================
+   Motion: top progress bar, first-visit splash, scroll reveal
+   ===================================================================== */
+.topbar { position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 50; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; }
+.topbar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #003087, #0070e0, #009cde); box-shadow: 0 0 8px rgba(0, 112, 224, 0.5); transition: width 0.4s var(--ease); }
+.topbar.active { opacity: 1; }
+.topbar.active span { animation: creep 12s cubic-bezier(0.1, 0.6, 0.2, 1) forwards; }
+.topbar.finish { opacity: 1; }
+.topbar.finish span { width: 100% !important; animation: none; transition: width 0.25s ease; }
+@keyframes creep { 0% { width: 0; } 10% { width: 35%; } 40% { width: 65%; } 100% { width: 92%; } }
+
+.splash { position: fixed; inset: 0; z-index: 60; display: grid; place-content: center; justify-items: center; gap: 14px; background: var(--bg); transition: opacity 0.45s ease, visibility 0.45s; }
+.splash.hide { opacity: 0; visibility: hidden; }
+.splash-mark { width: 72px; height: 72px; }
+.splash-mark path { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 80; stroke-dashoffset: 80; animation: draw 0.9s var(--ease) forwards; }
+.sp-left { stroke: #003087; stroke-width: 6; }
+.sp-right { stroke: #009cde; stroke-width: 6; animation-delay: 0.12s !important; }
+.sp-tick { stroke: #0070e0; stroke-width: 4; stroke-dasharray: 20 !important; stroke-dashoffset: 20 !important; animation-delay: 0.55s !important; }
+:root[data-theme="dark"] .sp-left { stroke: #3d8bff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sp-left { stroke: #3d8bff; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.splash-name { font: italic 400 34px/1 "Instrument Serif", Georgia, serif; letter-spacing: 0.08em; color: var(--navy); opacity: 0; animation: fadeUp 0.5s var(--ease) 0.5s forwards; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s var(--ease), transform 0.6s var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* small extra motion */
+.brand .mark { transition: transform 0.4s var(--ease); }
+.brand:hover .mark { transform: rotate(-8deg) scale(1.06); }
+.scenario { transition: border-color 0.15s, background 0.15s, transform 0.15s var(--ease); }
+.scenario:hover { transform: translateX(3px); }
+.btn { transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.12s var(--ease); }
+.btn:active, .scenario:active, .theme-btn:active, .chip:active { transform: scale(0.97); }
+.terms > div { animation: slide 0.3s var(--ease) both; }
+.terms > div:nth-child(2) { animation-delay: 0.04s; } .terms > div:nth-child(3) { animation-delay: 0.08s; }
+.terms > div:nth-child(4) { animation-delay: 0.12s; } .terms > div:nth-child(5) { animation-delay: 0.16s; } .terms > div:nth-child(6) { animation-delay: 0.2s; }
+
+/* =====================================================================
+   Touch: bigger targets, no hover-only behaviour, instant taps
+   ===================================================================== */
+button, .scenario, .btn, a, textarea { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.btn { min-height: 44px; }
+.theme-btn { width: 44px; height: 44px; }
+.scenario { min-height: 56px; }
+@media (hover: none) {
+  .scenario:hover, .btn:hover, .theme-btn:hover { transform: none; }
+  .scenario:hover { background: var(--surface); border-color: var(--line); }
+  .scenario.selected { background: var(--blue-soft); border-color: var(--blue); }
+  .btn.primary:hover { background: var(--blue); }
+  .brand:hover .mark { transform: none; }
+  .scenario:active { background: var(--blue-soft); }
+}
+@media (max-width: 640px) {
+  .btn, #compile, #launch { width: 100%; min-width: 0; }
+  .row { flex-direction: column; align-items: stretch; }
+  .sheet-actions { flex-direction: column-reverse; }
+  .sheet-actions .btn { width: 100%; }
+  .desk, .ledger { padding-left: 12px; padding-right: 12px; }
+  .controls, .sect { padding: 18px; }
+  .flow { padding: 18px 8px 16px; }
+  .node { min-width: 64px; }
+  .gate-icon { width: 64px; height: 64px; }
+  .lottie { width: 52px; height: 52px; }
+  textarea { font-size: 16px; } /* stops iOS zoom on focus */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+  .splash { display: none; }
 }
