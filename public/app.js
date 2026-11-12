@@ -30,7 +30,7 @@ fetch("/api/health").then((r) => r.json()).then((h) => {
   $("paypal-sub").textContent = h.paypal === "sandbox" ? "sandbox" : "simulated";
   if (h.paypalClientId) {
     const s = document.createElement("script");
-    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(h.paypalClientId)}&currency=USD&intent=capture`;
+    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(h.paypalClientId)}&currency=USD&intent=capture&disable-funding=card,credit,paylater`;
     document.head.appendChild(s);
   }
 });

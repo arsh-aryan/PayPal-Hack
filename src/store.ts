@@ -52,7 +52,7 @@ export function emit(run: Run, event: Record<string, unknown>) {
 // Pending human approvals: id -> resolver
 const pending = new Map<string, (approved: boolean) => void>();
 
-export function waitForApproval(id: string, timeoutMs = 5 * 60_000): Promise<boolean> {
+export function waitForApproval(id: string, timeoutMs = 15 * 60_000): Promise<boolean> {
   return new Promise((resolve) => {
     const timer = setTimeout(() => {
       pending.delete(id);
