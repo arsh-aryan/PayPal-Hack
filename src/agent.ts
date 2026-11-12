@@ -52,7 +52,7 @@ const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
         type: "object",
         properties: {
           payee: { type: "string", description: "merchant id or payee name" },
-          payee_email: { type: "string", description: "payee PayPal email, if known" },
+          payee_email: { type: "string", description: "payee PayPal email, only if a page explicitly lists one" },
           amount: { type: "number" },
           currency: { type: "string" },
           product_id: { type: "string", description: "product this payment is for" },

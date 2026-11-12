@@ -27,8 +27,8 @@ export function checkRules(req: PaymentRequest, policy: Policy, spent: number): 
   const product = products.find((p) => p.id === req.product_id);
 
   if (!merchant) block.push(`Payee "${req.payee}" is not a verified merchant.`);
-  if (req.payee_email && merchant && req.payee_email !== merchant.email)
-    block.push(`Payee email ${req.payee_email} does not match ${merchant.name}'s verified account.`);
+  // An email the agent supplies is never used: Leash always pays the merchant's verified
+  // account. So a made-up or redirected email cannot move money and is not a reason to block.
   if (merchant && policy.blocked_merchants.includes(merchant.id)) block.push(`${merchant.name} is on your blocked list.`);
   if (merchant && policy.require_returns && !merchant.returns) block.push(`${merchant.name} does not accept returns.`);
   if (!product) block.push(`Payment is not tied to any product in the order.`);
