@@ -4,75 +4,216 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Leash</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-grid.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-theme-quartz.css" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <span class="logo">◆</span>
-      <div>
-        <h1>Leash</h1>
-        <p>Let your AI agent restock the business — without handing it the keys to your PayPal</p>
-      </div>
+  <header class="topbar">
+    <div class="wordmark">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 3 L27 7.5 V15.5 C27 22 22.4 26.9 16 29 C9.6 26.9 5 22 5 15.5 V7.5 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" />
+        <path d="M11 16.5 L14.6 20 L21.5 12.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span class="name">Leash</span>
+      <span class="divider" aria-hidden="true"></span>
+      <span class="tagline">Spending controls for AI agents on PayPal</span>
     </div>
-    <div class="pills">
-      <span id="pill-ai" class="pill">AI: …</span>
-      <span id="pill-pp" class="pill">PayPal: …</span>
+    <div class="status">
+      <span id="pill-ai" class="chip"><i></i><span>AI</span></span>
+      <span id="pill-pp" class="chip"><i></i><span>PayPal</span></span>
     </div>
   </header>
 
-  <main>
-    <section class="panel" id="mandate-panel">
-      <h2><span class="step">1</span> Tell your restocking agent what it may do</h2>
-      <p class="muted persona">☕ Demo business: <b>Corner Café</b> — the owner lets an AI agent reorder supplies from approved wholesale suppliers.</p>
-      <div class="presets">
-        <button data-preset="We're running low on espresso beans. Reorder one bag of our house espresso. Spend at most $150 this week, only suppliers that accept returns, and ask me before any single payment over $100.">☕ Espresso beans</button>
-        <button data-preset="Order a case of compostable 12oz hot cups. Budget $200, returns required. Ask me before paying more than $100.">🥤 Cups</button>
-        <button data-preset="Reorder one case of barista oat milk. Spend at most $100. Only suppliers that accept returns.">🥛 Oat milk</button>
+  <main class="layout">
+    <!-- ============ 1. MANDATE ============ -->
+    <section class="card mandate" aria-labelledby="mandate-title">
+      <div class="card-head">
+        <span class="eyebrow">01 · Mandate</span>
+        <ol class="stepper" aria-label="Progress">
+          <li id="st-1" class="active">Write</li>
+          <li id="st-2">Confirm</li>
+          <li id="st-3">Run</li>
+        </ol>
       </div>
-      <textarea id="mandate" rows="4" placeholder="e.g. Reorder espresso beans, max $150 this week, returns required, ask me above $100."></textarea>
-      <button id="compile" class="primary">Compile spending policy</button>
+      <h2 id="mandate-title" class="title">What may the agent buy for <em>Corner Café</em>?</h2>
 
-      <div id="policy" class="policy hidden">
-        <h3>Enforced policy</h3>
-        <p id="policy-summary"></p>
-        <dl id="policy-grid"></dl>
-        <button id="launch" class="primary">Launch agent</button>
+      <div id="compose">
+        <div class="scenarios" role="list">
+          <button class="scenario" role="listitem" data-kind="allow"
+            data-preset="We're running low on espresso beans. Reorder one bag of our house espresso. Spend at most $150 this week, only suppliers that accept returns, and ask me before any single payment over $100.">
+            <span class="sc-top"><span class="sc-name">Espresso beans</span><span class="badge allow">Allow</span></span>
+            <span class="sc-desc">Routine reorder within budget</span>
+          </button>
+          <button class="scenario" role="listitem" data-kind="review"
+            data-preset="Order a case of compostable 12oz hot cups. Budget $200, returns required. Ask me before paying more than $100.">
+            <span class="sc-top"><span class="sc-name">Compostable cups</span><span class="badge review">Review</span></span>
+            <span class="sc-desc">Above threshold — you approve in PayPal</span>
+          </button>
+          <button class="scenario" role="listitem" data-kind="block"
+            data-preset="Reorder one case of barista oat milk. Spend at most $100. Only suppliers that accept returns.">
+            <span class="sc-top"><span class="sc-name">Oat milk</span><span class="badge block">Attack</span></span>
+            <span class="sc-desc">Supplier page tries to hijack the agent</span>
+          </button>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Instruction</span>
+          <textarea id="mandate" rows="4" placeholder="Reorder espresso beans. Max $150 this week, suppliers with returns only, ask me above $100."></textarea>
+        </label>
+        <div class="actions">
+          <button id="compile" class="btn primary"><span class="btn-label">Compile policy</span><span class="spinner" aria-hidden="true"></span></button>
+          <span class="hint">An LLM turns your words into hard limits. You confirm before anything runs.</span>
+        </div>
+      </div>
+
+      <div id="policy" class="policy" hidden>
+        <div class="receipt">
+          <p id="policy-summary" class="summary"></p>
+          <dl id="policy-grid" class="terms"></dl>
+        </div>
+        <div class="actions">
+          <button id="launch" class="btn primary"><span class="btn-label">Launch agent</span><span class="spinner" aria-hidden="true"></span></button>
+          <button id="edit" class="btn ghost">Edit instruction</button>
+        </div>
       </div>
     </section>
 
-    <section class="panel" id="feed-panel">
-      <h2><span class="step">2</span> Live agent activity</h2>
-      <div id="spent" class="spent hidden"></div>
-      <ol id="feed"><li class="empty">The agent's actions and Leash's decisions appear here.</li></ol>
+    <!-- ============ 2. FIREWALL PIPELINE ============ -->
+    <section class="card pipeline" aria-labelledby="pipe-title">
+      <div class="card-head">
+        <span class="eyebrow">02 · Firewall</span>
+        <span id="pipe-state" class="pipe-state">Idle</span>
+      </div>
+      <h2 id="pipe-title" class="sr-only">Payment pipeline</h2>
+
+      <div class="flow" id="flow" data-state="idle">
+        <div class="node" id="node-agent">
+          <div class="node-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3" /><path d="M12 3v4M9 12h.01M15 12h.01M9.5 16h5" /></svg>
+          </div>
+          <span class="node-name">Agent</span>
+          <span class="node-sub" id="agent-sub">waiting</span>
+        </div>
+
+        <div class="wire" id="wire-1"><span class="packet"></span></div>
+
+        <div class="node gate" id="node-leash">
+          <div class="node-icon gate-icon">
+            <div id="lottie-gate" class="lottie"></div>
+          </div>
+          <span class="node-name">Leash</span>
+          <div class="layers">
+            <span id="layer-rules" class="layer">Rules</span>
+            <span id="layer-ai" class="layer">AI judge</span>
+          </div>
+        </div>
+
+        <div class="wire" id="wire-2"><span class="packet"></span></div>
+
+        <div class="node" id="node-paypal">
+          <div class="node-icon pp">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20 10.5 4h6a4 4 0 0 1 0 8H12l-1.2 8z" /></svg>
+          </div>
+          <span class="node-name">PayPal</span>
+          <span class="node-sub" id="paypal-sub">sandbox</span>
+        </div>
+      </div>
+
+      <div class="verdict-card" id="verdict" data-kind="none">
+        <div class="verdict-anim" id="lottie-verdict"></div>
+        <div class="verdict-body">
+          <div class="verdict-line">
+            <span class="verdict-word" id="verdict-word">No payment yet</span>
+            <span class="verdict-amt mono" id="verdict-amt"></span>
+          </div>
+          <p class="verdict-reason" id="verdict-reason">When the agent tries to pay, the request stops here first.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. ACTIVITY ============ -->
+    <section class="card activity" aria-labelledby="act-title">
+      <div class="card-head">
+        <span class="eyebrow">03 · Activity</span>
+        <span class="live" id="live" hidden><i></i>Live</span>
+      </div>
+      <h2 id="act-title" class="sr-only">Agent activity</h2>
+      <ol id="feed" class="timeline" aria-live="polite">
+        <li class="empty">
+          <span>Pick a scenario, compile the policy and launch the agent.</span>
+          <span class="muted">Every search, page read and payment attempt shows up here as it happens.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ============ 4. SESSION ============ -->
+    <aside class="card session" aria-labelledby="sess-title">
+      <div class="card-head"><span class="eyebrow">04 · This run</span></div>
+      <h2 id="sess-title" class="sr-only">Run summary</h2>
+      <div class="spend">
+        <div class="spend-top">
+          <span class="spend-num serif" id="spent-num">$0</span>
+          <span class="spend-of muted" id="spent-of">of — budget</span>
+        </div>
+        <div class="meter" aria-hidden="true">
+          <span class="meter-fill" id="meter-fill"></span>
+          <span class="meter-tick" id="meter-tick" hidden></span>
+        </div>
+        <span class="meter-legend muted" id="meter-legend"></span>
+      </div>
+      <div class="counters">
+        <div class="counter"><span class="c-num mono" id="c-attempts">0</span><span class="c-label">Attempts</span></div>
+        <div class="counter allow"><span class="c-num mono" id="c-allowed">0</span><span class="c-label">Paid</span></div>
+        <div class="counter review"><span class="c-num mono" id="c-review">0</span><span class="c-label">Escalated</span></div>
+        <div class="counter block"><span class="c-num mono" id="c-blocked">0</span><span class="c-label">Blocked</span></div>
+      </div>
+      <div class="model">
+        <p class="model-title">How a decision is made</p>
+        <ol class="model-steps">
+          <li><b>Hard rules</b> decide. Verified payee, exact price, budget, category, returns.</li>
+          <li><b>AI judge</b> can only tighten. It blocks alone only on prompt injection.</li>
+          <li><b>You</b> approve escalations inside PayPal, not in a button the agent can fake.</li>
+        </ol>
+      </div>
+    </aside>
+
+    <!-- ============ 5. LEDGER ============ -->
+    <section class="card ledger" aria-labelledby="ledger-title">
+      <div class="card-head">
+        <span class="eyebrow">05 · Audit ledger</span>
+        <button id="refresh-audit" class="btn ghost small">Refresh</button>
+      </div>
+      <h2 id="ledger-title" class="sr-only">Audit ledger</h2>
+      <div id="audit-grid" class="ag-theme-quartz leash-grid"></div>
     </section>
   </main>
 
-  <section class="panel" id="audit-panel">
-    <div class="audit-head">
-      <h2><span class="step">3</span> Audit trail</h2>
-      <button id="refresh-audit">Refresh</button>
-    </div>
-    <div id="audit-grid" class="ag-theme-quartz"></div>
-  </section>
-
-  <div id="approval" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="approval-title">
-    <div class="modal-card">
-      <h3 id="approval-title">Approve this payment?</h3>
-      <p id="approval-body"></p>
-      <p id="approval-reason" class="muted"></p>
-      <p id="paypal-hint" class="muted hidden">Approve with PayPal (sign in as your sandbox buyer). Leash captures the order only after PayPal confirms your approval.</p>
-      <div id="paypal-buttons"></div>
-      <div class="modal-actions">
-        <button id="deny" class="danger">Deny</button>
-        <button id="approve" class="primary">Approve &amp; pay</button>
+  <!-- ============ APPROVAL SHEET ============ -->
+  <div id="approval" class="sheet-wrap" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="approval-title">
+      <div class="sheet-head">
+        <span class="badge review">Needs your approval</span>
+        <span class="mono muted" id="approval-order"></span>
+      </div>
+      <h3 id="approval-title" class="sheet-title serif">Approve <span id="approval-amount"></span>?</h3>
+      <p id="approval-body" class="sheet-body"></p>
+      <p id="approval-reason" class="sheet-reason"></p>
+      <p id="paypal-hint" class="sheet-hint" hidden>Sign in as your sandbox buyer. Leash captures the order only after PayPal confirms.</p>
+      <div id="paypal-buttons" class="paypal-slot"></div>
+      <div class="sheet-actions">
+        <button id="deny" class="btn danger">Deny</button>
+        <button id="approve" class="btn primary">Approve &amp; pay</button>
       </div>
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/dist/ag-grid-community.min.js"></script>
+  <script src="/anim.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>
