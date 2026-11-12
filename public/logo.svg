@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" role="img" aria-label="Leash">
+  <!-- hard offset shadow -->
+  <rect x="6" y="6" width="36" height="36" rx="10" fill="#121212"/>
+  <!-- tile -->
+  <rect x="2" y="2" width="36" height="36" rx="10" fill="#F4C542" stroke="#121212" stroke-width="2.5"/>
+  <!-- the mark: an L drawn as a lead, ending in a clip ring -->
+  <circle cx="14.5" cy="12.5" r="4.2" fill="none" stroke="#121212" stroke-width="3.4"/>
+  <path d="M14.5 16.7 V27.5 H27.5" fill="none" stroke="#121212" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- handle loop -->
+  <path d="M27.5 27.5 c3.6 0 5.2 -2.2 5.2 -4.6 c0 -2.4 -1.8 -4 -4 -4" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round"/>
+</svg>

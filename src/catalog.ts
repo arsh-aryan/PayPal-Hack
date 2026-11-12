@@ -91,7 +91,15 @@ export function searchProducts(query: string) {
   const hits = products.filter((p) =>
     words.some((w) => `${p.name} ${p.category}`.toLowerCase().includes(w.replace(/s$/, ""))),
   );
-  return (hits.length ? hits : products).map((p) => ({
+  if (!hits.length) {
+    return {
+      results: [],
+      note:
+        `No supplier in the catalog sells "${query}". The catalog only has café supplies ` +
+        `(coffee beans, cups, lids, oat milk). Do not buy a substitute; tell the owner nothing matched.`,
+    };
+  }
+  return hits.map((p) => ({
     product_id: p.id,
     name: p.name,
     price_usd: p.price,

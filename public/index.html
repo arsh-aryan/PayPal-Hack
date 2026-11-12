@@ -6,19 +6,26 @@
   <title>Leash</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-grid.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-theme-quartz.css" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
+  <div class="banner mono"><span class="banner-tag">Sandbox</span> Demo only. Payments use PayPal sandbox accounts, not real money.</div>
+
   <header class="masthead">
     <div class="brand">
-      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M16 3 L27 7.5 V15.5 C27 22 22.4 26.9 16 29 C9.6 26.9 5 22 5 15.5 V7.5 Z" />
-        <path d="M11 16.5 L14.6 20 L21.5 12.5" />
+      <svg class="mark" viewBox="0 0 44 44" aria-hidden="true">
+        <rect class="mark-shadow" x="6" y="6" width="36" height="36" rx="10" />
+        <rect class="mark-tile" x="2" y="2" width="36" height="36" rx="10" />
+        <circle class="mark-line" cx="14.5" cy="12.5" r="4.2" />
+        <path class="mark-line" d="M14.5 16.7 V27.5 H27.5" />
+        <path class="mark-line thin" d="M27.5 27.5 c3.6 0 5.2 -2.2 5.2 -4.6 c0 -2.4 -1.8 -4 -4 -4" />
       </svg>
-      <span class="name">Leash</span>
+      <span class="name">LEASH</span>
+      <span class="pill-beta mono">Beta</span>
       <span class="sub">Spending controls for AI purchasing agents</span>
     </div>
     <div class="docket mono">
@@ -29,6 +36,13 @@
       <span id="pill-pp" class="chip"><i></i><span>PayPal</span></span>
     </div>
   </header>
+
+  <div class="tape" aria-hidden="true">
+    <div class="tape-track mono">
+      <span>Rules decide</span><i></i><span>AI only tightens</span><i></i><span>You approve in PayPal</span><i></i><span>Every attempt logged</span><i></i>
+      <span>Rules decide</span><i></i><span>AI only tightens</span><i></i><span>You approve in PayPal</span><i></i><span>Every attempt logged</span><i></i>
+    </div>
+  </div>
 
   <ol class="steps mono" aria-label="Progress">
     <li id="st-1" class="active"><span>1</span> Mandate</li>
@@ -45,6 +59,7 @@
         <p class="lede">Tell the agent what it may buy, how much it may spend, and when to ask you first.</p>
 
         <div id="compose">
+          <p class="catalog-note">The demo store stocks <b>Corner Café supplies</b> from four wholesale suppliers: coffee beans, cups, lids and oat milk. Anything else will not be found.</p>
           <p class="label mono">Example orders</p>
           <ul class="scenarios" role="list">
             <li>

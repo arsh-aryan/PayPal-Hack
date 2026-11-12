@@ -8,6 +8,7 @@ let policy = null;
 let source = null;
 let pendingApproval = null;
 let stats = { attempts: 0, paid: 0, review: 0, blocked: 0, spent: 0 };
+let lastAgentText = "";
 
 // Glyphs so verdicts never depend on colour alone
 const GLYPH = {
@@ -127,6 +128,7 @@ $("launch").addEventListener("click", async () => {
 
 function resetRun() {
   stats = { attempts: 0, paid: 0, review: 0, blocked: 0, spent: 0 };
+  lastAgentText = "";
   $("feed").innerHTML = "";
   ["c-attempts", "c-allowed", "c-review", "c-blocked"].forEach((id) => ($(id).textContent = "0"));
   setLayer("layer-rules", "", "Rules");
@@ -311,7 +313,14 @@ function handleEvent(e) {
       break;
 
     case "agent_message":
+      lastAgentText = e.text;
       addEvent({ kind: "agent", label: "Agent", text: mdLite(e.text), at: e.at });
+      break;
+
+    case "tool_result":
+      if (e.tool === "search_products" && e.result && !Array.isArray(e.result) && e.result.results?.length === 0) {
+        addEvent({ kind: "nothing", label: "No match", text: "No supplier in the catalog sells this", detail: "The demo store only stocks café supplies.", at: e.at });
+      }
       break;
 
     case "error":
@@ -325,7 +334,15 @@ function handleEvent(e) {
       busy($("launch"), false, "Run again");
       $("edit").disabled = false;
       setStep(4);
-      if (["busy", "check"].includes($("flow").dataset.state)) setFlow("idle", "Finished");
+      if (stats.attempts === 0) {
+        // The agent never tried to pay: say so plainly instead of leaving the gate blank
+        setFlow("idle", "Nothing bought");
+        setVerdict("none", "Nothing bought", "", lastAgentText
+          ? lastAgentText.replace(/\*\*/g, "").split("\n")[0].slice(0, 260)
+          : "The agent did not find anything to buy, so no payment reached the gate.");
+      } else if (["busy", "check"].includes($("flow").dataset.state)) {
+        setFlow("idle", "Finished");
+      }
       source?.close();
       loadAudit();
       break;
