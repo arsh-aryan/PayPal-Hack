@@ -537,3 +537,16 @@ syncThemeButton();
   window.addEventListener("load", finish);
   setTimeout(finish, 2500); // never hold the page behind the splash for long
 })();
+
+// Outcome cards pick the matching example order
+document.querySelectorAll(".outcomes li").forEach((card) => {
+  const pick = () => {
+    const sc = document.querySelector(`.scenario[data-kind="${card.dataset.v}"]`);
+    if (!sc) return;
+    document.querySelectorAll(".outcomes li").forEach((c) => c.classList.toggle("picked", c === card));
+    if (!$("compose").hidden) sc.click();
+    sc.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  card.addEventListener("click", pick);
+  card.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+});

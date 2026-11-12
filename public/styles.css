@@ -354,7 +354,7 @@ textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px
 .splash-mark path { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 80; stroke-dashoffset: 80; animation: draw 0.9s var(--ease) forwards; }
 .sp-left { stroke: #003087; stroke-width: 6; }
 .sp-right { stroke: #009cde; stroke-width: 6; animation-delay: 0.12s !important; }
-.sp-tick { stroke: #0070e0; stroke-width: 4; stroke-dasharray: 20 !important; stroke-dashoffset: 20 !important; animation-delay: 0.55s !important; }
+.splash-mark .sp-tick { stroke: #0070e0; stroke-width: 4; stroke-dasharray: 20; stroke-dashoffset: 20; animation-delay: 0.55s; }
 :root[data-theme="dark"] .sp-left { stroke: #3d8bff; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sp-left { stroke: #3d8bff; } }
 @keyframes draw { to { stroke-dashoffset: 0; } }
@@ -448,3 +448,20 @@ button, .scenario, .btn, a, textarea { touch-action: manipulation; -webkit-tap-h
   .intro-sub { opacity: 1; }
   .splash { display: none; }
 }
+
+/* outcome cards: interactive */
+.outcomes li { cursor: pointer; transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.outcomes li:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 20, 53, 0.1); }
+.outcomes li:active { transform: scale(0.97); }
+.outcomes li:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.outcomes li.picked { box-shadow: 0 0 0 2px var(--blue); }
+.outcomes li .go { font-size: 12px; font-weight: 700; color: var(--blue); margin-top: 4px; }
+@media (hover: none) { .outcomes li:hover { transform: none; box-shadow: none; } }
+
+/* ?still: static render for screenshots */
+.still .splash { display: none; }
+.still .reveal, .still .reveal * { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; transition: none !important; }
+.still .tagline .w > span, .still .intro-sub { transform: none !important; opacity: 1 !important; }
+.still .packet { display: none; }
+.still #lottie-gate { display: none; }
+.still .gate-icon { background: url(/logo.svg) center / 42px no-repeat var(--surface); }
