@@ -7,7 +7,10 @@ import { merchants, products } from "./catalog.js";
 import { paypalConfigured } from "./paypal.js";
 import { activeModel, aiConfigured, providerName } from "./llm.js";
 import { compileMandate, type Policy } from "./policy.js";
-import { audit, createRun, resolveApproval, runs } from "./store.js";
+import { auditFor, createRun, resolveApproval, runs } from "./store.js";
+
+// Anonymous per-browser id (no accounts in the demo): scopes the audit ledger to one visitor.
+const visitor = (req: express.Request) => String(req.get("x-visitor-id") ?? "").replace(/[^a-zA-Z0-9-]/g, "").slice(0, 64) || "anonymous";
 
 const app = express();
 app.use(express.json());
@@ -39,7 +42,7 @@ app.post("/api/runs", (req, res) => {
   const mandate = String(req.body?.mandate ?? "");
   const policy = req.body?.policy as Policy | undefined;
   if (!mandate || !policy) return res.status(400).json({ error: "mandate and policy are required" });
-  const run = createRun();
+  const run = createRun(visitor(req));
   void runAgent(run, mandate, policy);
   res.json({ runId: run.id });
 });
@@ -60,11 +63,14 @@ app.get("/api/runs/:id/events", (req, res) => {
 });
 
 app.post("/api/approvals/:id", (req, res) => {
-  const ok = resolveApproval(req.params.id, Boolean(req.body?.approved));
+  const ok = resolveApproval(req.params.id, {
+    approved: Boolean(req.body?.approved),
+    via: req.body?.via === "paypal" ? "paypal" : "app",
+  });
   res.status(ok ? 200 : 404).json({ ok });
 });
 
-app.get("/api/audit", (_req, res) => res.json(audit));
+app.get("/api/audit", (req, res) => res.json(auditFor(visitor(req))));
 
 const port = Number(process.env.PORT) || 3000;
 app.listen(port, () => {

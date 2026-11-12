@@ -1,4 +1,14 @@
 const $ = (id) => document.getElementById(id);
+
+// No accounts in the demo: an anonymous id per browser keeps each visitor's ledger separate.
+const VISITOR = (() => {
+  try {
+    let v = localStorage.getItem("leash-visitor");
+    if (!v) { v = crypto.randomUUID(); localStorage.setItem("leash-visitor", v); }
+    return v;
+  } catch { return crypto.randomUUID(); }
+})();
+const VH = { "x-visitor-id": VISITOR };
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const money = (n) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const clock = (iso) => new Date(iso || Date.now()).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -110,7 +120,7 @@ $("launch").addEventListener("click", async () => {
   setStep(3);
   const res = await fetch("/api/runs", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...VH },
     body: JSON.stringify({ mandate: $("mandate").value, policy }),
   });
   const { runId, error } = await res.json();
@@ -358,7 +368,7 @@ function renderPayPalApproval(orderId) {
     .Buttons({
       style: { layout: "vertical", label: "pay", shape: "rect", height: 44 },
       createOrder: () => orderId, // created server-side by Leash
-      onApprove: () => answerApproval(true), // Leash captures server-side
+      onApprove: () => answerApproval(true, "paypal"), // Leash captures server-side
       onError: (err) => addEvent({ kind: "block", glyph: "block", label: "Error", text: "PayPal error", detail: esc(err?.message || err) }),
     })
     .render(box);
@@ -371,7 +381,7 @@ function openApproval(e) {
   $("approval-reason").textContent = e.reason;
   $("approval-order").textContent = e.orderId ? `PayPal order ${e.orderId}` : "";
   const viaPayPal = renderPayPalApproval(e.orderId);
-  $("approve").hidden = viaPayPal;
+  $("approve").textContent = viaPayPal ? "Approve here instead" : "Approve and pay";
   $("paypal-hint").hidden = !viaPayPal;
   $("approval").hidden = false;
   $("deny").focus();
@@ -380,14 +390,14 @@ function closeApproval() {
   $("approval").hidden = true;
   $("paypal-buttons").innerHTML = "";
 }
-async function answerApproval(approved) {
+async function answerApproval(approved, via = "app") {
   if (!pendingApproval) return;
   const id = pendingApproval;
   pendingApproval = null;
   await fetch(`/api/approvals/${id}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ approved }),
+    body: JSON.stringify({ approved, via }),
   });
 }
 $("approve").addEventListener("click", () => answerApproval(true));
@@ -418,8 +428,25 @@ const grid = agGrid.createGrid($("audit-grid"), {
   overlayNoRowsTemplate: "No payment attempts yet.",
 });
 async function loadAudit() {
-  const rows = await fetch("/api/audit").then((r) => r.json());
+  const rows = await fetch("/api/audit", { headers: VH }).then((r) => r.json());
   grid.setGridOption("rowData", rows);
 }
 $("refresh-audit").addEventListener("click", loadAudit);
 loadAudit();
+
+// ---------------- theme toggle (remembered per browser) ----------------
+function currentTheme() {
+  return document.documentElement.dataset.theme ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
+function syncThemeButton() {
+  $("theme").setAttribute("aria-label", currentTheme() === "dark" ? "Switch to light mode" : "Switch to dark mode");
+}
+$("theme").addEventListener("click", () => {
+  const next = currentTheme() === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("leash-theme", next); } catch {}
+  syncThemeButton();
+  window.LeashAnim?.mountGate($("lottie-gate")); // redraw the gate in the new colours
+});
+syncThemeButton();

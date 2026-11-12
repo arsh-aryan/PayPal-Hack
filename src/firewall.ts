@@ -155,6 +155,7 @@ export async function guardedPayment(
   emit(run, { type: "firewall_decision", decision, layer, reason, rules, judge, request: req });
 
   const base = {
+    visitorId: run.visitorId,
     runId: run.id,
     payee: req.payee,
     amount: req.amount,
@@ -193,8 +194,8 @@ export async function guardedPayment(
     }
 
     emit(run, { type: "approval_required", approvalId, reason, request: req, orderId: order?.id ?? null });
-    const approved = await waitForApproval(approvalId);
-    emit(run, { type: "approval_resolved", approvalId, approved });
+    const { approved, via } = await waitForApproval(approvalId);
+    emit(run, { type: "approval_resolved", approvalId, approved, via });
     if (!approved) {
       addAudit({ ...base, decision: "DENIED", layer: "user", reason, paypalId: order?.id ?? "", paypalStatus: order ? "VOIDED" : "NOT SENT" });
       return "DENIED: the owner declined this payment. Do not retry. Tell the owner.";
@@ -202,7 +203,9 @@ export async function guardedPayment(
     finalDecision = "APPROVED";
     layer = "user";
 
-    if (order) {
+    // Approved in PayPal's popup: capture the order. Approved in the app (visitors without
+    // a sandbox buyer login): fall through and pay the supplier through Payouts instead.
+    if (order && via === "paypal") {
       try {
         const captured = await captureOrder(order.id);
         run.spent += req.amount;

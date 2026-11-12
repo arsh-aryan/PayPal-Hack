@@ -7,13 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script>try { var t = localStorage.getItem("leash-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-grid.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-theme-quartz.css" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <div class="banner mono"><span class="banner-tag">Sandbox</span> Demo only. Payments use PayPal sandbox accounts, not real money.</div>
+  <div class="banner mono"><span class="banner-tag">Demo</span> No sign-up needed: you act as the owner of Corner Café. Payments use PayPal sandbox accounts, not real money.</div>
 
   <header class="masthead">
     <div class="brand">
@@ -34,6 +35,7 @@
       <span id="pill-ai" class="chip"><i></i><span>AI</span></span>
       <span class="sep" aria-hidden="true">/</span>
       <span id="pill-pp" class="chip"><i></i><span>PayPal</span></span>
+      <button id="theme" class="theme-btn" type="button" aria-label="Switch to dark mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><g class="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg></button>
     </div>
   </header>
 
@@ -231,7 +233,7 @@
       <p id="approval-body" class="sheet-body"></p>
       <p id="approval-reason" class="sheet-reason"></p>
       <div class="pp-area">
-        <p id="paypal-hint" class="fine" hidden>Sign in as the sandbox buyer. Leash captures the order only after PayPal confirms your approval.</p>
+        <p id="paypal-hint" class="fine" hidden>Have a PayPal sandbox buyer login? Approve in PayPal and Leash captures the order. No sandbox login? Use <b>Approve here instead</b>: Leash pays the supplier through PayPal Payouts.</p>
         <div id="paypal-buttons" class="paypal-slot"></div>
       </div>
       <div class="sheet-actions">

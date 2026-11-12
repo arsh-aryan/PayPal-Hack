@@ -52,6 +52,22 @@
     color-scheme: dark;
   }
 }
+:root[data-theme="dark"] {
+    --bg: #0e0e10;
+    --surface: #17171b;
+    --surface-2: #1f1f24;
+    --ink: #f6eedb;
+    --ink-2: #d5ccb8;
+    --muted: #9b9484;
+    --rule: #2f2e2b;
+    --dot: rgba(246, 238, 219, 0.09);
+    --edge: #f6eedb;
+    --accent: #7cc0dc;
+    --allow: #7fd3a1;   --allow-bg: #13281c;
+    --review: #f2b955;  --review-bg: #2d2311;
+    --block: #ff8f84;   --block-bg: #331614;
+    color-scheme: dark;
+}
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
@@ -265,7 +281,7 @@ textarea:focus { outline: none; box-shadow: 4px 4px 0 var(--accent); }
   border: 2px solid var(--edge); border-radius: 14px; background: var(--surface);
   box-shadow: 3px 3px 0 var(--edge); transition: all 0.25s var(--ease);
 }
-.node-icon svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.node-icon > svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .gate-icon { width: 76px; height: 76px; border-radius: 18px; border-width: 2.5px; box-shadow: 4px 4px 0 var(--edge); }
 .lottie { width: 62px; height: 62px; }
 .node-name { font: 800 14px/1 var(--display); letter-spacing: 0.04em; text-transform: uppercase; }
@@ -460,4 +476,22 @@ textarea:focus { outline: none; box-shadow: 4px 4px 0 var(--accent); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------- theme toggle ---------- */
+.theme-btn {
+  display: inline-grid; place-items: center; width: 34px; height: 34px; cursor: pointer;
+  border: 2px solid var(--edge); border-radius: 99px; background: var(--surface); color: var(--ink);
+  box-shadow: 2px 2px 0 var(--edge); transition: transform 0.12s var(--ease), box-shadow 0.12s var(--ease);
+}
+.theme-btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--edge); }
+.theme-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--edge); }
+.theme-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.theme-btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.theme-btn .sun { display: none; }
+:root[data-theme="dark"] .theme-btn .sun { display: inline; }
+:root[data-theme="dark"] .theme-btn .moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-btn .sun { display: inline; }
+  :root:not([data-theme="light"]) .theme-btn .moon { display: none; }
 }
