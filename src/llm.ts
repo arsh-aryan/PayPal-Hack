@@ -52,11 +52,18 @@ export async function chat(params: ChatParams): Promise<OpenAI.Chat.Completions.
   let lastError: unknown;
   for (const m of order) {
     try {
-      return await openai().chat.completions.create({ ...params, model: m });
+      try {
+        // First attempt without SDK retries, so a used-up daily quota falls back at once
+        return await openai().chat.completions.create({ ...params, model: m }, { maxRetries: 0 });
+      } catch (e) {
+        if (isDailyLimit(e)) throw e;
+        // Per-minute limits and transient errors: retry with the client's backoff
+        return await openai().chat.completions.create({ ...params, model: m });
+      }
     } catch (e) {
       lastError = e;
       if (!isDailyLimit(e)) throw e;
-      exhaustedUntil.set(m, Date.now() + 15 * 60_000);
+      exhaustedUntil.set(m, Date.now() + 60 * 60_000);
       console.warn(`[llm] ${m} hit its daily quota; falling back`);
     }
   }

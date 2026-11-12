@@ -45,6 +45,7 @@ let source = null;
 let pendingApproval = null;
 let stats = { attempts: 0, paid: 0, review: 0, blocked: 0, spent: 0 };
 let lastAgentText = "";
+const pagesRead = {}; // product id -> supplier page text the agent read
 
 // Glyphs so verdicts never depend on colour alone
 const GLYPH = {
@@ -258,6 +259,18 @@ function addEvent({ kind = "", label, glyph, text, detail = "", amount = "", at 
   $("feed").appendChild(li);
   $("feed").scrollTop = $("feed").scrollHeight;
 }
+// On a blocked injection, quote the supplier page and mark the sentences that caused it.
+function showEvidence(req, at) {
+  const text = pagesRead[req.product_id];
+  if (!text) return;
+  const needles = [String(req.payee).toLowerCase(), Number(req.amount).toFixed(2), String(req.payee_email || "\u0000").toLowerCase()];
+  const html = text.split(/(?<=[.!?])\s+/).map((sentence) => {
+    const low = sentence.toLowerCase();
+    return needles.some((n) => n && low.includes(n)) ? `<mark>${esc(sentence)}</mark>` : esc(sentence);
+  }).join(" ");
+  if (!html.includes("<mark>")) return;
+  addEvent({ kind: "evidence", glyph: "block", label: "Evidence", text: `What supplier page <code>${esc(req.product_id)}</code> told the agent`, detail: `<span class="quote">${html}</span>`, at });
+}
 const payee = (r) => `<b class="mono">${esc(r.payee)}</b>${r.product_id ? ` · <code>${esc(r.product_id)}</code>` : ""}`;
 
 function handleEvent(e) {
@@ -311,6 +324,7 @@ function handleEvent(e) {
         detail: `${esc(e.reason)} — decided by ${esc(e.layer)}`,
         amount: e.request.amount, at: e.at,
       });
+      if (kind === "block" && injected) showEvidence(e.request, e.at);
       break;
     }
 
@@ -359,6 +373,7 @@ function handleEvent(e) {
       break;
 
     case "tool_result":
+      if (e.tool === "view_product" && e.result?.page_text) pagesRead[e.result.product_id] = e.result.page_text;
       if (e.tool === "search_products" && e.result && !Array.isArray(e.result) && e.result.results?.length === 0) {
         addEvent({ kind: "nothing", label: "No match", text: "No supplier in the catalog sells this", detail: "The demo store only stocks café supplies.", at: e.at });
       }
@@ -492,6 +507,9 @@ syncThemeButton();
 (() => {
   const splash = document.getElementById("splash");
   const started = performance.now();
+  const tag = document.querySelector(".tagline");
+  if (tag) tag.innerHTML = tag.textContent.trim().split(/\s+/).map((w, i) =>
+    `<span class="w"><span style="--i:${i}"${/paypal/i.test(w) ? ' class="hl"' : ""}>${esc(w)}</span></span>`).join(" ");
   const reveal = () => {
     const items = document.querySelectorAll(".reveal");
     if (!("IntersectionObserver" in window)) { items.forEach((el) => el.classList.add("in")); return; }

@@ -12,6 +12,7 @@ Small businesses are starting to let AI agents reorder supplies. But an agent th
 
 - **Plain English → enforceable policy.** "Reorder espresso, max $150 this week, returns only, ask me above $100" is compiled by an LLM into a strict JSON policy the owner confirms before the agent starts.
 - **Live prompt-injection defence.** A supplier page tries to hijack the agent into paying a fake "logistics deposit" to a third party. Leash blocks it in real time and explains why.
+- **Evidence, not just a verdict.** When an injection is blocked, Leash quotes the supplier page and marks the exact sentences that tried to hijack the agent.
 - **Intent-drift detection.** An independent AI judge checks each payment against what the owner actually asked for — not what the agent was told by a web page.
 - **PayPal is the human-in-the-loop.** Escalated payments become real PayPal Orders that the owner approves in PayPal's buyer-approval popup; Leash captures only after PayPal confirms.
 

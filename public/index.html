@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <script>try { var t = localStorage.getItem("leash-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-grid.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-theme-quartz.css" />
   <link rel="stylesheet" href="/styles.css" />
@@ -53,6 +53,12 @@
     <p class="tagline">Spending controls for AI agents that pay with PayPal.</p>
     <p class="intro-sub">Set the rules, let the agent shop, and Leash checks every payment before money moves.</p>
   </section>
+
+  <ul class="outcomes reveal" aria-label="The three possible outcomes">
+    <li data-v="allow"><b>Allow</b><span>Inside your rules. Paid automatically through PayPal Payouts.</span></li>
+    <li data-v="review"><b>Review</b><span>Over your ask-me amount. You approve it in PayPal first.</span></li>
+    <li data-v="block"><b>Block</b><span>Breaks a rule or the agent was tricked. Nothing is sent.</span></li>
+  </ul>
 
 
   <ol class="steps reveal" aria-label="Progress">
