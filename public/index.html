@@ -8,61 +8,60 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <script>try { var t = localStorage.getItem("leash-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-grid.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-theme-quartz.css" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <div class="banner mono"><span class="banner-tag">Demo</span> No sign-up needed: you act as the owner of Corner Café. Payments use PayPal sandbox accounts, not real money.</div>
+  <div class="banner"><span class="banner-tag">Demo</span> No sign-up needed: you act as the owner of Corner Café. Payments use PayPal sandbox accounts, not real money.</div>
 
   <header class="masthead">
-    <div class="brand">
-      <svg class="mark" viewBox="0 0 44 44" aria-hidden="true">
-        <rect class="mark-shadow" x="6" y="6" width="36" height="36" rx="10" />
-        <rect class="mark-tile" x="2" y="2" width="36" height="36" rx="10" />
-        <circle class="mark-line" cx="14.5" cy="12.5" r="4.2" />
-        <path class="mark-line" d="M14.5 16.7 V27.5 H27.5" />
-        <path class="mark-line thin" d="M27.5 27.5 c3.6 0 5.2 -2.2 5.2 -4.6 c0 -2.4 -1.8 -4 -4 -4" />
+    <div class="mh-left">
+      <span class="biz">Corner Café</span>
+      <span class="biz-sub">Demo business</span>
+    </div>
+
+    <a class="brand" href="/" aria-label="Leash home">
+      <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+        <path class="mark-shield" d="M24 4 40 10v11c0 10.5-6.8 18.6-16 22-9.2-3.4-16-11.5-16-22V10z" />
+        <path class="mark-lead" d="M17 17v12h12" />
+        <circle class="mark-clip" cx="17" cy="14" r="2.6" />
       </svg>
       <span class="name">LEASH</span>
-      <span class="pill-beta mono">Beta</span>
-      <span class="sub">Spending controls for AI purchasing agents</span>
-    </div>
-    <div class="docket mono">
-      <span>Corner Café</span>
-      <span class="sep" aria-hidden="true">/</span>
+      <span class="pill-beta">Beta</span>
+    </a>
+
+    <div class="mh-right docket">
       <span id="pill-ai" class="chip"><i></i><span>AI</span></span>
-      <span class="sep" aria-hidden="true">/</span>
       <span id="pill-pp" class="chip"><i></i><span>PayPal</span></span>
       <button id="theme" class="theme-btn" type="button" aria-label="Switch to dark mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><g class="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg></button>
     </div>
   </header>
 
-  <div class="tape" aria-hidden="true">
-    <div class="tape-track mono">
-      <span>Rules decide</span><i></i><span>AI only tightens</span><i></i><span>You approve in PayPal</span><i></i><span>Every attempt logged</span><i></i>
-      <span>Rules decide</span><i></i><span>AI only tightens</span><i></i><span>You approve in PayPal</span><i></i><span>Every attempt logged</span><i></i>
-    </div>
-  </div>
+  <section class="intro" aria-label="About Leash">
+    <p class="tagline">Spending controls for AI agents that pay with PayPal.</p>
+    <p class="intro-sub">Set the rules, let the agent shop, and Leash checks every payment before money moves.</p>
+  </section>
 
-  <ol class="steps mono" aria-label="Progress">
-    <li id="st-1" class="active"><span>1</span> Mandate</li>
-    <li id="st-2"><span>2</span> Policy</li>
-    <li id="st-3"><span>3</span> Run</li>
-    <li id="st-4"><span>4</span> Audit</li>
+
+  <ol class="steps" aria-label="Progress">
+    <li id="st-1" class="active"><span>1</span> Write rules</li>
+    <li id="st-2"><span>2</span> Check policy</li>
+    <li id="st-3"><span>3</span> Watch agent</li>
+    <li id="st-4"><span>4</span> Review log</li>
   </ol>
 
   <main class="desk">
     <!-- ===================== LEFT: CONTROLS ===================== -->
     <aside class="controls">
       <section class="sect" aria-labelledby="mandate-title">
-        <h2 id="mandate-title" class="h">Mandate</h2>
-        <p class="lede">Tell the agent what it may buy, how much it may spend, and when to ask you first.</p>
+        <h2 id="mandate-title" class="h">1. Tell the agent what to buy</h2>
+        <p class="lede">Pick an example order or write your own. Include a budget, and when the agent should ask you first.</p>
 
         <div id="compose">
           <p class="catalog-note">The demo store stocks <b>Corner Café supplies</b> from four wholesale suppliers: coffee beans, cups, lids and oat milk. Anything else will not be found.</p>
-          <p class="label mono">Example orders</p>
+          <p class="label">Try an example</p>
           <ul class="scenarios" role="list">
             <li>
               <button class="scenario" data-kind="allow"
@@ -94,7 +93,7 @@
           </ul>
 
           <label class="field" for="mandate">
-            <span class="label mono">Instruction</span>
+            <span class="label">Or write your own instruction</span>
           </label>
           <textarea id="mandate" rows="5" placeholder="Reorder espresso beans. Max $150 this week. Suppliers with returns only. Ask me above $100."></textarea>
           <div class="row">
@@ -104,18 +103,19 @@
         </div>
 
         <div id="policy" class="policy" hidden>
-          <p class="label mono">Spending policy</p>
+          <p class="label">2. Check the rules before the agent starts</p>
           <p id="policy-summary" class="summary"></p>
           <dl id="policy-grid" class="terms"></dl>
           <div class="row">
             <button id="launch" class="btn primary"><span class="spinner" aria-hidden="true"></span><span class="btn-label">Launch agent</span></button>
             <button id="edit" class="btn plain">Edit instruction</button>
           </div>
+          <p class="fine">After you launch, the agent shops on its own. Watch the payment check on the right: every payment it tries stops there first.</p>
         </div>
       </section>
 
       <section class="sect rules-note" aria-labelledby="rules-title">
-        <h2 id="rules-title" class="label mono">How a payment is decided</h2>
+        <h2 id="rules-title" class="label">How Leash decides</h2>
         <ol class="rules-list">
           <li><b>Rules decide.</b> Verified payee, exact listed price, budget, category, returns.</li>
           <li><b>The AI judge can only tighten.</b> It blocks on its own only when it finds prompt injection.</li>
@@ -128,7 +128,7 @@
     <div class="run">
       <section class="sect gate-block" aria-labelledby="pipe-title">
         <div class="block-head">
-          <h2 id="pipe-title" class="h">Payment gate</h2>
+          <h2 id="pipe-title" class="h">3. Payment check</h2>
           <span id="pipe-state" class="state mono">Idle</span>
         </div>
 
@@ -178,7 +178,7 @@
       <div class="split">
         <section class="sect feed-block" aria-labelledby="act-title">
           <div class="block-head">
-            <h2 id="act-title" class="h">Activity</h2>
+            <h2 id="act-title" class="h">What the agent is doing</h2>
             <span class="live mono" id="live" hidden><i></i>Running</span>
           </div>
           <ol id="feed" class="feed" aria-live="polite">
@@ -187,7 +187,7 @@
         </section>
 
         <section class="sect book" aria-labelledby="book-title">
-          <h2 id="book-title" class="h">This run</h2>
+          <h2 id="book-title" class="h">Spending</h2>
           <dl class="book-lines mono">
             <div><dt>Budget</dt><dd id="spent-budget">—</dd></div>
             <div><dt>Spent</dt><dd id="spent">$0.00</dd></div>
@@ -213,7 +213,7 @@
   <!-- ===================== AUDIT ===================== -->
   <section class="sect ledger" aria-labelledby="ledger-title">
     <div class="block-head">
-      <h2 id="ledger-title" class="h">Audit ledger</h2>
+      <h2 id="ledger-title" class="h">4. Payment log</h2>
       <button id="refresh-audit" class="btn plain small">Refresh</button>
     </div>
     <p class="lede">Every payment the agent attempted, what decided it, and the PayPal reference.</p>

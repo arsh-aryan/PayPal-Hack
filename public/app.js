@@ -130,6 +130,7 @@ $("launch").addEventListener("click", async () => {
     return alert(error);
   }
   $("live").hidden = false;
+  if (matchMedia("(max-width: 880px)").matches) document.querySelector(".gate-block").scrollIntoView({ behavior: "smooth", block: "start" });
   setFlow("busy", "Agent working");
   source?.close();
   source = new EventSource(`/api/runs/${runId}/events`);
