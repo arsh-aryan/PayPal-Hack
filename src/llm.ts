@@ -33,6 +33,41 @@ export const model = () =>
   (providerName() === "openai" ? process.env.OPENAI_MODEL : undefined) ||
   PROVIDERS[providerName()].defaultModel;
 
+// Groq free-tier quotas are per model, so a second model keeps the demo alive
+// when the main model's DAILY token quota is used up.
+const fallbackModel = () =>
+  process.env.AI_FALLBACK_MODEL || (providerName() === "groq" ? "openai/gpt-oss-20b" : undefined);
+
+const exhaustedUntil = new Map<string, number>();
+const isDailyLimit = (e: unknown) =>
+  e instanceof OpenAI.APIError && e.status === 429 && /per day|\(TPD\)|\(RPD\)/i.test(e.message);
+
+type ChatParams = Omit<OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming, "model">;
+
+/** Chat completion with automatic fallback to a second model when the first hits its daily quota. */
+export async function chat(params: ChatParams): Promise<OpenAI.Chat.Completions.ChatCompletion> {
+  const candidates = [model(), fallbackModel()].filter((m): m is string => Boolean(m));
+  const usable = candidates.filter((m) => (exhaustedUntil.get(m) ?? 0) < Date.now());
+  const order = usable.length ? usable : candidates;
+  let lastError: unknown;
+  for (const m of order) {
+    try {
+      return await openai().chat.completions.create({ ...params, model: m });
+    } catch (e) {
+      lastError = e;
+      if (!isDailyLimit(e)) throw e;
+      exhaustedUntil.set(m, Date.now() + 15 * 60_000);
+      console.warn(`[llm] ${m} hit its daily quota; falling back`);
+    }
+  }
+  throw lastError;
+}
+
+export const activeModel = () => {
+  const m = model();
+  return (exhaustedUntil.get(m) ?? 0) > Date.now() ? fallbackModel() ?? m : m;
+};
+
 /** Ask the model for a JSON object that matches `schema`. Falls back to JSON mode if strict schemas are unsupported. */
 export async function jsonCompletion<T>(opts: {
   name: string;
@@ -46,16 +81,14 @@ export async function jsonCompletion<T>(opts: {
   ];
   let content: string | null | undefined;
   try {
-    const res = await openai().chat.completions.create({
-      model: model(),
+    const res = await chat({
       messages,
       response_format: { type: "json_schema", json_schema: { name: opts.name, strict: true, schema: opts.schema } },
     });
     content = res.choices[0]?.message?.content;
   } catch (e) {
     if (!(e instanceof OpenAI.APIError) || e.status !== 400) throw e;
-    const res = await openai().chat.completions.create({
-      model: model(),
+    const res = await chat({
       messages: [
         { role: "system", content: `${opts.system}\n\nRespond ONLY with a JSON object matching this JSON schema:\n${JSON.stringify(opts.schema)}` },
         { role: "user", content: opts.user },

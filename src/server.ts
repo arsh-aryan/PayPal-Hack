@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { runAgent } from "./agent.js";
 import { merchants, products } from "./catalog.js";
 import { paypalConfigured } from "./paypal.js";
-import { aiConfigured, model, providerName } from "./llm.js";
+import { activeModel, aiConfigured, providerName } from "./llm.js";
 import { compileMandate, type Policy } from "./policy.js";
 import { audit, createRun, resolveApproval, runs } from "./store.js";
 
@@ -15,7 +15,7 @@ app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "
 
 app.get("/api/health", (_req, res) => {
   res.json({
-    ai: aiConfigured() ? `${providerName()} · ${model()}` : null,
+    ai: aiConfigured() ? `${providerName()} · ${activeModel()}` : null,
     paypal: paypalConfigured() ? "sandbox" : "simulated",
     paypalClientId: paypalConfigured() ? process.env.PAYPAL_CLIENT_ID : null, // public client id, safe for the browser
   });
@@ -69,6 +69,6 @@ app.get("/api/audit", (_req, res) => res.json(audit));
 const port = Number(process.env.PORT) || 3000;
 app.listen(port, () => {
   console.log(`Leash running on http://localhost:${port}`);
-  console.log(`  AI: ${aiConfigured() ? `${providerName()} (${model()})` : "MISSING KEY"}`);
+  console.log(`  AI: ${aiConfigured() ? `${providerName()} (${activeModel()})` : "MISSING KEY"}`);
   console.log(`  PayPal: ${paypalConfigured() ? "sandbox" : "simulated (no credentials)"}`);
 });

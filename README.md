@@ -4,6 +4,8 @@ Small businesses are starting to let AI agents reorder supplies. But an agent th
 
 > Built for the PayPal AI Hackathon — *Build what's next with PayPal and AI*.
 
+**Live demo:** https://leash-vy3x.onrender.com (free Render instance: the first visit after it has been idle can take ~50 seconds to wake up). Payments go to the PayPal **sandbox** only.
+
 **Demo persona:** *Corner Café*. The owner lets an AI agent reorder coffee beans, cups and oat milk from approved wholesale suppliers.
 
 ## What's new here
@@ -95,10 +97,15 @@ npm start              # http://localhost:3000
 | `GROQ_API_KEY` | console.groq.com → API Keys (free tier works) |
 | `OPENAI_API_KEY` | platform.openai.com → API keys (only if using OpenAI) |
 | `AI_MODEL` | optional override; defaults to `openai/gpt-oss-120b` (Groq) or `gpt-5-mini` (OpenAI) |
+| `AI_FALLBACK_MODEL` | optional; used automatically when the main model hits its daily quota. Defaults to `openai/gpt-oss-20b` on Groq |
 | `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` | developer.paypal.com → Apps & Credentials → **Sandbox** → Create App |
 | `PAYPAL_MERCHANT_RECEIVER` | optional: a sandbox *personal* account email (Testing Tools → Sandbox Accounts) that receives payouts |
 
 Then: click a preset → **Compile spending policy** → review it → **Launch agent**. For the cups scenario, approve in the PayPal popup by signing in with your **sandbox personal (buyer) account**.
+
+## Deploying
+
+`render.yaml` is a Render Blueprint: in the Render dashboard choose **New → Blueprint**, pick this repo, and paste the four secrets it asks for (`GROQ_API_KEY`, `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_MERCHANT_RECEIVER`). Leash needs a long-running server (live event stream, approvals that wait for the owner, in-memory ledger), so it runs as a Render web service rather than serverless functions.
 
 ## Project structure
 

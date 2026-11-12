@@ -1,7 +1,7 @@
 import type OpenAI from "openai";
 import { searchProducts, viewProduct } from "./catalog.js";
 import { guardedPayment, type PaymentRequest } from "./firewall.js";
-import { model, openai } from "./llm.js";
+import { chat } from "./llm.js";
 import { getPaymentStatus } from "./paypal.js";
 import type { Policy } from "./policy.js";
 import { emit, type Run } from "./store.js";
@@ -89,7 +89,7 @@ export async function runAgent(run: Run, mandate: string, policy: Policy) {
       let res;
       for (let attempt = 0; ; attempt++) {
         try {
-          res = await openai().chat.completions.create({ model: model(), messages, tools });
+          res = await chat({ messages, tools });
           break;
         } catch (e) {
           const msg = (e as Error).message;
