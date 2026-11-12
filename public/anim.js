@@ -19,9 +19,12 @@
 
   const tr = () => ({ ty: "tr", p: K([0, 0]), a: K([0, 0]), s: K([100, 100]), r: K(0), o: K(100), sk: K(0), sa: K(0) });
   const stroke = (c, w) => ({ ty: "st", c: K(c), o: K(100), w: K(w), lc: 2, lj: 2, ml: 4 });
+  // lottie-web mutates shape data in place, so every animation gets its own copy of the points
+  // (reusing the shared arrays corrupted the shield after a theme switch redraw).
+  const copy = (pts) => pts.map((p) => [...p]);
   const path = (v, i, o, closed) => ({
     ty: "sh",
-    ks: K({ v, i: i || v.map(() => [0, 0]), o: o || v.map(() => [0, 0]), c: !!closed }),
+    ks: K({ v: copy(v), i: i ? copy(i) : v.map(() => [0, 0]), o: o ? copy(o) : v.map(() => [0, 0]), c: !!closed }),
   });
   const ellipse = (d) => ({ ty: "el", p: K([0, 0]), s: K([d, d]), d: 1 });
   const trim = (s, e, o) => ({ ty: "tm", s: s ?? K(0), e: e ?? K(100), o: o ?? K(0), m: 1 });
