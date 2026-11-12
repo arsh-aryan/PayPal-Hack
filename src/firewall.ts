@@ -165,7 +165,7 @@ export async function guardedPayment(
 
   if (decision === "BLOCK") {
     addAudit({ ...base, decision: "BLOCK", layer, reason, paypalId: "", paypalStatus: "NOT SENT" });
-    return `BLOCKED by Guardrail: ${reason} Do not retry this payment. Tell the user what happened.`;
+    return `BLOCKED by Leash: ${reason} Do not retry this payment. Tell the user what happened.`;
   }
 
   let finalDecision: "ALLOW" | "APPROVED" = "ALLOW";
@@ -188,8 +188,8 @@ export async function guardedPayment(
       receiverEmail: process.env.PAYPAL_MERCHANT_RECEIVER || merchant.email,
       amount: req.amount,
       currency: req.currency.toUpperCase(),
-      note: `Guardrail-approved purchase of ${req.product_id} from ${merchant.name}`,
-      reference: `GR-${run.id}-${Date.now()}`,
+      note: `Leash-approved purchase of ${req.product_id} from ${merchant.name}`,
+      reference: `LS-${run.id}-${Date.now()}`,
     });
     run.spent += req.amount;
     addAudit({ ...base, decision: finalDecision, layer, reason, paypalId: payment.id, paypalStatus: payment.status });

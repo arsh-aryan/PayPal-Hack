@@ -103,7 +103,7 @@ function handleEvent(e) {
       addFeed("", `Agent → ${e.tool}`, `<code>${esc(JSON.stringify(e.args))}</code>`);
       break;
     case "firewall_check":
-      addFeed("", "Guardrail intercepted payment", `${describe(e.request)}<br><span class="muted">Agent's reason: ${esc(e.request.justification)}</span>`);
+      addFeed("", "Leash intercepted payment", `${describe(e.request)}<br><span class="muted">Agent's reason: ${esc(e.request.justification)}</span>`);
       break;
     case "firewall_decision": {
       const cls = e.decision.toLowerCase();

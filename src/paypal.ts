@@ -60,7 +60,7 @@ export async function sendPayment(p: {
     {
       sender_batch_header: {
         sender_batch_id: p.reference,
-        email_subject: "You have a payment from a Guardrail-protected agent",
+        email_subject: "You have a payment from a Leash-protected agent",
         email_message: p.note,
       },
       items: [

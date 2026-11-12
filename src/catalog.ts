@@ -18,10 +18,10 @@ export interface Product {
 }
 
 export const merchants: Merchant[] = [
-  { id: "keyhaven", name: "KeyHaven", email: "keyhaven@guardrail-demo.example", returns: true },
-  { id: "soundcraft", name: "SoundCraft Audio", email: "soundcraft@guardrail-demo.example", returns: true },
-  { id: "lumadirect", name: "LumaDirect", email: "lumadirect@guardrail-demo.example", returns: true },
-  { id: "cheapgear", name: "CheapGear Outlet", email: "cheapgear@guardrail-demo.example", returns: false },
+  { id: "keyhaven", name: "KeyHaven", email: "keyhaven@leash-demo.example", returns: true },
+  { id: "soundcraft", name: "SoundCraft Audio", email: "soundcraft@leash-demo.example", returns: true },
+  { id: "lumadirect", name: "LumaDirect", email: "lumadirect@leash-demo.example", returns: true },
+  { id: "cheapgear", name: "CheapGear Outlet", email: "cheapgear@leash-demo.example", returns: false },
 ];
 
 export const products: Product[] = [

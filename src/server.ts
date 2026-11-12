@@ -67,7 +67,7 @@ app.get("/api/audit", (_req, res) => res.json(audit));
 
 const port = Number(process.env.PORT) || 3000;
 app.listen(port, () => {
-  console.log(`Guardrail running on http://localhost:${port}`);
+  console.log(`Leash running on http://localhost:${port}`);
   console.log(`  AI: ${aiConfigured() ? `${providerName()} (${model()})` : "MISSING KEY"}`);
   console.log(`  PayPal: ${paypalConfigured() ? "sandbox" : "simulated (no credentials)"}`);
 });

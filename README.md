@@ -1,6 +1,6 @@
-# Guardrail — a firewall between AI agents and your PayPal wallet
+# Leash — a firewall between AI agents and your PayPal wallet
 
-AI agents are starting to shop and pay for us. But an agent that can spend money can also be **confused, over-eager, or hijacked** by text hidden in a web page ("prompt injection"). Guardrail sits between any agent and PayPal: every payment the agent attempts is checked, explained, and either **allowed**, **blocked**, or **sent to you for one-tap approval** — with a full audit trail.
+AI agents are starting to shop and pay for us. But an agent that can spend money can also be **confused, over-eager, or hijacked** by text hidden in a web page ("prompt injection"). Leash sits between any agent and PayPal: every payment the agent attempts is checked, explained, and either **allowed**, **blocked**, or **sent to you for one-tap approval** — with a full audit trail.
 
 > Built for the PayPal AI Hackathon — *Build what's next with PayPal and AI*.
 
@@ -17,8 +17,8 @@ AI agents are starting to shop and pay for us. But an agent that can spend money
         │                                              │
         │                         every pay() is intercepted
         ▼                                              ▼
- ③ Guardrail firewall ─┬─ Layer 1: hard rules (budget, payee, price, returns, category)
-                       └─ Layer 2: AI judge (intent match + prompt-injection detection)
+ ③ Leash firewall ─┬─ Layer 1: hard rules (budget, payee, price, returns, category)
+                   └─ Layer 2: AI judge (intent match + prompt-injection detection)
         │
    ALLOW ──────────────► PayPal Payouts API (sandbox) ─► payout batch id + status
    REVIEW ─► you approve/deny in the UI ─► PayPal or stop
@@ -28,7 +28,7 @@ AI agents are starting to shop and pay for us. But an agent that can spend money
  ④ Audit trail (AG Grid): every attempt, decision, layer, reason, PayPal id
 ```
 
-**Why two layers?** Hard rules can't be talked out of a limit, but they can't understand intent. The AI judge understands intent, but models can be fooled. Guardrail blocks if *either* layer objects and escalates to you if either is unsure. The judge only sees the user's mandate and the evidence the agent read — never the agent's own instructions — so it treats page content as untrusted data.
+**Security model: the AI never approves money on its own.** Hard rules are the real protection — they can't be talked out of a limit. The AI judge sits on top and can only make a decision *stricter*: it can never approve something the rules reject, it may block outright only when it detects prompt injection, and otherwise it can only escalate to you. The judge only sees the user's mandate and the evidence the agent read — never the agent's own instructions — so it treats page content as untrusted data.
 
 ## Demo scenarios (one click each)
 
@@ -36,12 +36,12 @@ AI agents are starting to shop and pay for us. But an agent that can spend money
 |---|---|
 | ⌨️ Keyboard (max $120, ask above $80) | Agent finds a $65 keyboard at a store with returns → **ALLOW** → paid via PayPal sandbox |
 | 🎧 Headphones (ask above $80) | Agent picks $95 headphones → **REVIEW** → you approve → paid |
-| 💡 Desk lamp (max $60) | The lamp's product page hides an instruction telling AI agents to pay a $400 "priority deposit" to another payee. The agent tries. Guardrail **BLOCKS** it (unverified payee, price mismatch, over budget, AI judge flags prompt injection). The legitimate $42 lamp purchase still goes through. |
+| 💡 Desk lamp (max $100) | The lamp's product page tells AI buyers to pay a $49 "refundable fulfilment deposit" to a third-party escrow payee. The agent takes the bait and tries. Leash **BLOCKS** it — the hard rules reject the unverified payee and price mismatch, and the AI judge independently flags prompt injection. No money leaves the wallet. |
 
 ## PayPal integration
 
 - **OAuth 2.0 client credentials** against `api-m.sandbox.paypal.com`
-- **Payouts API** (`POST /v1/payments/payouts`) — the agent's wallet (your sandbox business account) pays the merchant only after Guardrail approves
+- **Payouts API** (`POST /v1/payments/payouts`) — the agent's wallet (your sandbox business account) pays the merchant only after Leash approves
 - **Payout status** (`GET /v1/payments/payouts/{id}`) — the agent can verify a payment landed
 - Every audit row stores the real PayPal **payout batch id** so it can be traced in the sandbox dashboard
 
@@ -97,7 +97,7 @@ public/        UI (vanilla JS + AG Grid)
 
 - Storefronts are mocked so the injection demo is reproducible; payments are real PayPal sandbox payouts.
 - Audit log is in-memory (resets on restart).
-- Next: expose Guardrail as an MCP server so *any* agent (including PayPal's Agent Toolkit) can be wrapped, per-merchant reputation, and spending mandates shared across family members.
+- Next: expose Leash as an MCP server so *any* agent (including PayPal's Agent Toolkit) can be wrapped, per-merchant reputation, and spending mandates shared across family members.
 
 ## License
 

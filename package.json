@@ -1,5 +1,5 @@
 {
-  "name": "guardrail",
+  "name": "leash",
   "version": "0.1.0",
   "private": true,
   "description": "AI payment firewall between autonomous shopping agents and PayPal",
