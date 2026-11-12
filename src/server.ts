@@ -17,6 +17,7 @@ app.get("/api/health", (_req, res) => {
   res.json({
     ai: aiConfigured() ? `${providerName()} · ${model()}` : null,
     paypal: paypalConfigured() ? "sandbox" : "simulated",
+    paypalClientId: paypalConfigured() ? process.env.PAYPAL_CLIENT_ID : null, // public client id, safe for the browser
   });
 });
 

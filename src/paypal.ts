@@ -85,3 +85,34 @@ export async function getPaymentStatus(batchId: string): Promise<string> {
   );
   return data.batch_header.batch_status;
 }
+
+// ---------- Orders v2: used when Leash escalates a payment to the human ----------
+// The owner approves in PayPal's own buyer-approval popup (JS SDK), then Leash captures.
+
+export async function createOrder(p: {
+  amount: number;
+  currency: string;
+  description: string;
+  reference: string;
+}): Promise<{ id: string; status: string }> {
+  return call<{ id: string; status: string }>("POST", "/v2/checkout/orders", {
+    intent: "CAPTURE",
+    purchase_units: [
+      {
+        reference_id: p.reference.slice(0, 256),
+        custom_id: p.reference.slice(0, 127),
+        description: p.description.slice(0, 127),
+        amount: { currency_code: p.currency, value: p.amount.toFixed(2) },
+      },
+    ],
+  });
+}
+
+export async function captureOrder(orderId: string): Promise<{ id: string; status: string; captureId?: string }> {
+  const data = await call<{
+    id: string;
+    status: string;
+    purchase_units?: { payments?: { captures?: { id: string; status: string }[] } }[];
+  }>("POST", `/v2/checkout/orders/${orderId}/capture`, {});
+  return { id: data.id, status: data.status, captureId: data.purchase_units?.[0]?.payments?.captures?.[0]?.id };
+}

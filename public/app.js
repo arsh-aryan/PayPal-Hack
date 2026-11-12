@@ -12,7 +12,28 @@ fetch("/api/health").then((r) => r.json()).then((h) => {
   $("pill-ai").className = `pill ${h.ai ? "ok" : "warn"}`;
   $("pill-pp").textContent = h.paypal === "sandbox" ? "PayPal: sandbox live" : "PayPal: simulated";
   $("pill-pp").className = `pill ${h.paypal === "sandbox" ? "ok" : "warn"}`;
+  if (h.paypalClientId) {
+    // PayPal JavaScript SDK: powers the real buyer-approval step for escalated payments
+    const s = document.createElement("script");
+    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(h.paypalClientId)}&currency=USD&intent=capture`;
+    document.head.appendChild(s);
+  }
 });
+
+function renderPayPalApproval(orderId) {
+  const box = $("paypal-buttons");
+  box.innerHTML = "";
+  if (!orderId || !window.paypal) return false;
+  window.paypal
+    .Buttons({
+      style: { layout: "vertical", label: "pay" },
+      createOrder: () => orderId, // order was created server-side by Leash
+      onApprove: () => answerApproval(true), // Leash captures it server-side
+      onError: (err) => addFeed("block", "PayPal error", esc(err?.message || err)),
+    })
+    .render(box);
+  return true;
+}
 
 // ---------- step 1: mandate -> policy ----------
 document.querySelectorAll("[data-preset]").forEach((b) =>
@@ -107,7 +128,11 @@ function handleEvent(e) {
       break;
     case "firewall_decision": {
       const cls = e.decision.toLowerCase();
-      const inj = e.judge?.injection_detected ? " · ⚠️ prompt injection detected" : "";
+      const inj = !e.judge?.injection_detected
+        ? ""
+        : e.decision === "BLOCK"
+          ? " · ⚠️ prompt injection detected"
+          : " · ⚠️ injection seen on page — this payment itself is legitimate";
       addFeed(cls, `Decision (${e.layer})`, `<span class="verdict">${e.decision}</span>${inj}<br>${esc(e.reason)}`);
       break;
     }
@@ -115,15 +140,27 @@ function handleEvent(e) {
       pendingApproval = e.approvalId;
       $("approval-body").innerHTML = describe(e.request);
       $("approval-reason").textContent = e.reason;
+      {
+        const viaPayPal = renderPayPalApproval(e.orderId);
+        $("approve").classList.toggle("hidden", viaPayPal);
+        $("paypal-hint").classList.toggle("hidden", !viaPayPal);
+      }
       $("approval").classList.remove("hidden");
-      $("approve").focus();
+      break;
+    case "paypal_order_created":
+      addFeed("review", "PayPal", `Order <code>${esc(e.orderId)}</code> created · waiting for the owner's approval in PayPal`);
       break;
     case "approval_resolved":
       $("approval").classList.add("hidden");
       addFeed(e.approved ? "allow" : "block", "You", e.approved ? "Approved" : "Denied");
       break;
     case "payment_sent":
-      addFeed("paid", "PayPal", `✅ Paid ${describe(e.request)}<br><span class="muted">Payout batch <code>${esc(e.payment.id)}</code> · ${esc(e.payment.status)}${e.payment.simulated ? " (simulated)" : ""}</span>`);
+      {
+        const ref = e.payment.kind === "order"
+          ? `Order <code>${esc(e.payment.id)}</code> captured${e.payment.captureId ? ` · capture <code>${esc(e.payment.captureId)}</code>` : ""}`
+          : `Payout batch <code>${esc(e.payment.id)}</code>`;
+        addFeed("paid", "PayPal", `✅ Paid ${describe(e.request)}<br><span class="muted">${ref} · ${esc(e.payment.status)}${e.payment.simulated ? " (simulated)" : ""}</span>`);
+      }
       $("spent").textContent = `Spent so far: ${money(e.spent)} of ${money(policy.max_total)}`;
       $("spent").classList.remove("hidden");
       break;

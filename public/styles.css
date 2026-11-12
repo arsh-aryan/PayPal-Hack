@@ -107,3 +107,4 @@ textarea {
 .modal-card h3 { font-size: 18px; color: var(--review); }
 .muted { color: var(--muted); font-size: 14px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.persona { margin: -4px 0 10px; }

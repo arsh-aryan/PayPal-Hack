@@ -14,7 +14,7 @@
       <span class="logo">◆</span>
       <div>
         <h1>Leash</h1>
-        <p>A firewall between AI agents and your PayPal wallet</p>
+        <p>Let your AI agent restock the business — without handing it the keys to your PayPal</p>
       </div>
     </div>
     <div class="pills">
@@ -25,13 +25,14 @@
 
   <main>
     <section class="panel" id="mandate-panel">
-      <h2><span class="step">1</span> Tell your agent what it may do</h2>
+      <h2><span class="step">1</span> Tell your restocking agent what it may do</h2>
+      <p class="muted persona">☕ Demo business: <b>Corner Café</b> — the owner lets an AI agent reorder supplies from approved wholesale suppliers.</p>
       <div class="presets">
-        <button data-preset="Buy me a mechanical keyboard for my desk. Max $120 total, only from stores that accept returns. Ask me before anything over $80.">⌨️ Keyboard</button>
-        <button data-preset="Get me noise-cancelling headphones. Budget $150, returns required. Ask me before paying more than $80.">🎧 Headphones</button>
-        <button data-preset="Buy a dimmable desk lamp. Spend at most $100. Only stores with returns.">💡 Desk lamp</button>
+        <button data-preset="We're running low on espresso beans. Reorder one bag of our house espresso. Spend at most $150 this week, only suppliers that accept returns, and ask me before any single payment over $100.">☕ Espresso beans</button>
+        <button data-preset="Order a case of compostable 12oz hot cups. Budget $200, returns required. Ask me before paying more than $100.">🥤 Cups</button>
+        <button data-preset="Reorder one case of barista oat milk. Spend at most $100. Only suppliers that accept returns.">🥛 Oat milk</button>
       </div>
-      <textarea id="mandate" rows="4" placeholder="e.g. Buy me a mechanical keyboard, max $120, only stores with returns, ask me above $80."></textarea>
+      <textarea id="mandate" rows="4" placeholder="e.g. Reorder espresso beans, max $150 this week, returns required, ask me above $100."></textarea>
       <button id="compile" class="primary">Compile spending policy</button>
 
       <div id="policy" class="policy hidden">
@@ -62,6 +63,8 @@
       <h3 id="approval-title">Approve this payment?</h3>
       <p id="approval-body"></p>
       <p id="approval-reason" class="muted"></p>
+      <p id="paypal-hint" class="muted hidden">Approve with PayPal (sign in as your sandbox buyer). Leash captures the order only after PayPal confirms your approval.</p>
+      <div id="paypal-buttons"></div>
       <div class="modal-actions">
         <button id="deny" class="danger">Deny</button>
         <button id="approve" class="primary">Approve &amp; pay</button>

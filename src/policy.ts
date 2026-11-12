@@ -31,14 +31,14 @@ const schema = {
     goal: { type: "string", description: "What the user wants the agent to buy, in one sentence." },
     currency: { type: "string", description: "ISO currency code, default USD." },
     max_total: { type: "number", description: "Max total spend for this mandate." },
-    max_per_purchase: { type: "number", description: "Max for any single payment. Default = max_total." },
+    max_per_purchase: { type: "number", description: "Hard cap for any single payment, ONLY if the user states one explicitly (e.g. \"never more than $X per order\"). Otherwise equal to max_total. An \"ask me above $X\" instruction is the approval_threshold, NOT this cap." },
     approval_threshold: {
       type: "number",
       description: "Payments ABOVE this amount need the user's approval. If not stated, use 80% of max_total.",
     },
     allowed_categories: {
       type: "array",
-      items: { type: "string", enum: ["electronics", "home", "clothing", "food", "travel", "other"] },
+      items: { type: "string", enum: ["ingredients", "packaging", "cleaning", "equipment", "other"] },
       description: "Categories the agent may buy in. Infer from the goal.",
     },
     blocked_merchants: {
@@ -55,10 +55,10 @@ export async function compileMandate(mandate: string): Promise<Policy> {
   const policy = await jsonCompletion<Policy>({
     name: "spending_policy",
     system:
-      "You convert a user's plain-English shopping instruction for an AI agent into a strict, conservative spending policy. " +
+      "You convert a small-business owner's plain-English purchasing instruction for their AI restocking agent into a strict, conservative spending policy. " +
       "Never invent permissions the user did not grant. When unsure, choose the safer (lower / stricter) value. " +
-      "Category guide: computers, keyboards, headphones, phones, gadgets -> electronics; lamps, furniture, decor, kitchenware -> home; " +
-      "apparel and shoes -> clothing. Include only the categories the requested item belongs to. " +
+      "Category guide: coffee, milk, syrups, food -> ingredients; cups, lids, bags, napkins -> packaging; " +
+      "sanitizer, detergent -> cleaning; machines, grinders, tools -> equipment. Include only the categories the requested items belong to. " +
       `Known merchant ids: ${merchants.map((m) => `${m.id} (${m.name})`).join(", ")}.`,
     user: mandate,
     schema,

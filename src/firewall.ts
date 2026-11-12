@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { findMerchant, products } from "./catalog.js";
 import { jsonCompletion } from "./llm.js";
-import { sendPayment } from "./paypal.js";
+import { captureOrder, createOrder, paypalConfigured, sendPayment } from "./paypal.js";
 import type { Policy } from "./policy.js";
 import { addAudit, emit, waitForApproval, type Run } from "./store.js";
 
@@ -169,27 +169,63 @@ export async function guardedPayment(
   }
 
   let finalDecision: "ALLOW" | "APPROVED" = "ALLOW";
+  const merchant = findMerchant(req.payee)!;
+  const reference = `LS-${run.id}-${Date.now()}`;
+
   if (decision === "REVIEW") {
     const approvalId = randomUUID().slice(0, 8);
-    emit(run, { type: "approval_required", approvalId, reason, request: req });
+
+    // With PayPal configured, the human step IS PayPal: create a real order that the
+    // owner approves in PayPal's own buyer-approval popup, then capture it here.
+    let order: { id: string; status: string } | null = null;
+    if (paypalConfigured()) {
+      try {
+        order = await createOrder({
+          amount: req.amount,
+          currency: req.currency.toUpperCase(),
+          description: `${merchant.name}: ${req.product_id} (agent purchase, needs owner approval)`,
+          reference,
+        });
+        emit(run, { type: "paypal_order_created", orderId: order.id, status: order.status });
+      } catch (e) {
+        emit(run, { type: "payment_failed", error: (e as Error).message, request: req });
+      }
+    }
+
+    emit(run, { type: "approval_required", approvalId, reason, request: req, orderId: order?.id ?? null });
     const approved = await waitForApproval(approvalId);
     emit(run, { type: "approval_resolved", approvalId, approved });
     if (!approved) {
-      addAudit({ ...base, decision: "DENIED", layer: "user", reason, paypalId: "", paypalStatus: "NOT SENT" });
-      return "DENIED: the user declined this payment. Do not retry. Tell the user.";
+      addAudit({ ...base, decision: "DENIED", layer: "user", reason, paypalId: order?.id ?? "", paypalStatus: order ? "VOIDED" : "NOT SENT" });
+      return "DENIED: the owner declined this payment. Do not retry. Tell the owner.";
     }
     finalDecision = "APPROVED";
     layer = "user";
+
+    if (order) {
+      try {
+        const captured = await captureOrder(order.id);
+        run.spent += req.amount;
+        addAudit({ ...base, decision: finalDecision, layer, reason, paypalId: order.id, paypalStatus: `CAPTURED · ${captured.status}` });
+        const payment = { id: order.id, status: captured.status, simulated: false, kind: "order", captureId: captured.captureId };
+        emit(run, { type: "payment_sent", payment, request: req, spent: run.spent });
+        return `PAID: owner approved in PayPal; order ${order.id} captured (${captured.status}).`;
+      } catch (e) {
+        const msg = (e as Error).message;
+        addAudit({ ...base, decision: finalDecision, layer, reason, paypalId: order.id, paypalStatus: "CAPTURE FAILED" });
+        emit(run, { type: "payment_failed", error: msg, request: req });
+        return `PayPal capture failed: ${msg}`;
+      }
+    }
   }
 
-  const merchant = findMerchant(req.payee)!;
   try {
     const payment = await sendPayment({
       receiverEmail: process.env.PAYPAL_MERCHANT_RECEIVER || merchant.email,
       amount: req.amount,
       currency: req.currency.toUpperCase(),
       note: `Leash-approved purchase of ${req.product_id} from ${merchant.name}`,
-      reference: `LS-${run.id}-${Date.now()}`,
+      reference,
     });
     run.spent += req.amount;
     addAudit({ ...base, decision: finalDecision, layer, reason, paypalId: payment.id, paypalStatus: payment.status });
